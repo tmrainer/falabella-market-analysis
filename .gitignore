@@ -2,6 +2,8 @@
 data/raw/
 # Base de datos SQLite (se regenera a partir de data/raw con --solo-parsear)
 data/db/*.db
+# CSV para Tableau (se regeneran con src.export)
+data/export/
 data/db/*.db-journal
 # Logs de ejecucion
 logs/
