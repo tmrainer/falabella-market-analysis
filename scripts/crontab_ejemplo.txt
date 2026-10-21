@@ -1,0 +1,3 @@
+# Alternativa a systemd: agregar con `crontab -e`.
+# Minuto Hora * * *  comando. Corre a las 08:30 todos los días; log a logs/cron.log.
+30 8 * * * cd $HOME/Proyectos/Falabella && .venv/bin/python -m src.run_pilot >> logs/cron.log 2>&1

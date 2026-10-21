@@ -1,0 +1,11 @@
+# Unidad de usuario (sin root). Instalar con scripts/instalar_timer.sh
+[Unit]
+Description=Captura diaria de catálogo falabella.com.pe
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Proyectos/Falabella
+ExecStart=%h/Proyectos/Falabella/.venv/bin/python -m src.run_pilot
+# Si el sitio bloquea (403/429) el script sale con código 1 y el timer NO reintenta.

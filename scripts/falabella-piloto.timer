@@ -1,0 +1,12 @@
+[Unit]
+Description=Ejecuta la captura de falabella.com.pe todos los días a las 08:30
+
+[Timer]
+OnCalendar=*-*-* 08:30:00
+# Si la PC estaba apagada a esa hora, corre apenas encienda (clave en laptops).
+Persistent=true
+# Variación aleatoria de hasta 10 min para no pegar siempre a la misma hora exacta.
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
