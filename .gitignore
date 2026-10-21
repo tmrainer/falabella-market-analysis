@@ -1,0 +1,16 @@
+# Datos crudos descargados (pesados, regenerables con el scraper)
+data/raw/
+# Base de datos SQLite (se regenera a partir de data/raw con --solo-parsear)
+data/db/*.db
+data/db/*.db-journal
+# Logs de ejecucion
+logs/
+# Entorno virtual y cache de Python
+.venv/
+__pycache__/
+*.pyc
+# Jupyter
+.ipynb_checkpoints/
+# Editores
+.vscode/
+.idea/
