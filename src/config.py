@@ -6,6 +6,7 @@ DIR_DB = RAIZ / "data" / "db"
 DIR_LOGS = RAIZ / "logs"
 DIR_REPORTES = RAIZ / "reports"
 DIR_SQL = RAIZ / "sql"
+DIR_EXPORT = RAIZ / "data" / "export"
 RUTA_DB = DIR_DB / "falabella.db"
 
 BASE_URL = "https://www.falabella.com.pe/falabella-pe/category"
