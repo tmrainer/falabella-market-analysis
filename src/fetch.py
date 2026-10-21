@@ -56,20 +56,16 @@ def leer_raw(ruta: Path) -> str:
         return f.read()
 
 
-def descargar_categoria(sesion: requests.Session, categoria: str, fecha: date, paginas: int) -> list[Path]:
-    """Devuelve las rutas raw. Si una pagina ya existe para esa fecha, no vuelve a pedirla."""
-    rutas = []
-    for pagina in range(1, paginas + 1):
-        ruta = ruta_raw(fecha, categoria, pagina)
-        if ruta.exists():
-            log.info("%s p%d ya descargada, se omite", categoria, pagina)
-            rutas.append(ruta)
-            continue
-        url = config.url_categoria(categoria, pagina)
-        inicio = time.monotonic()
-        html = descargar(sesion, url)
-        guardar_raw(ruta, html)
-        log.info("%s p%d OK %.1f s %d KB -> %s", categoria, pagina, time.monotonic() - inicio, len(html) // 1024, ruta.name)
-        rutas.append(ruta)
-        pausa_aleatoria()
-    return rutas
+def descargar_pagina(sesion: requests.Session, categoria: str, fecha: date, pagina: int) -> tuple[Path, bool]:
+    """Devuelve (ruta_raw, se_descargo). Si ya existe para esa fecha, no vuelve a pedirla."""
+    ruta = ruta_raw(fecha, categoria, pagina)
+    if ruta.exists():
+        log.info("%s p%d ya descargada, se omite", categoria, pagina)
+        return ruta, False
+    url = config.url_categoria(categoria, pagina)
+    inicio = time.monotonic()
+    html = descargar(sesion, url)
+    guardar_raw(ruta, html)
+    log.info("%s p%d OK %.1f s %d KB -> %s", categoria, pagina, time.monotonic() - inicio, len(html) // 1024, ruta.name)
+    pausa_aleatoria()
+    return ruta, True

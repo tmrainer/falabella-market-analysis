@@ -1,5 +1,5 @@
 [Unit]
-Description=Ejecuta la captura de falabella.com.pe todos los días a las 08:30
+Description=Ejecuta la captura de falabella.com.pe todos los días a las 08:30 (dura ~30 min)
 
 [Timer]
 OnCalendar=*-*-* 08:30:00

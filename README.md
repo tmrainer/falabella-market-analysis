@@ -6,7 +6,7 @@ de reseñas) y descuentos en campañas (Cyber WOW, Black Friday).
 
 Estado: **Fase 0 completada (2026-10-21)** – piloto de recolección validado.
 
-## Resultados del piloto (5 páginas × 7 categorías, 35 requests, 3.5 min)
+## Resultados del piloto inicial (5 páginas × 7 categorías, 35 requests, 3.5 min)
 
 | categoría | productos | % con ≥1 reseña | % con ≥10 | mediana | patrocinados |
 |---|---:|---:|---:|---:|---:|
@@ -19,6 +19,10 @@ Estado: **Fase 0 completada (2026-10-21)** – piloto de recolección validado.
 | zapatillas deportivas mujer | 256 | 78.1 | 32.8 | 5 | 19 |
 
 Hay reseñas suficientes para la Fase 2 en todas las categorías; laptops es la más débil.
+Desde el 2026-10-21 la captura diaria es de **50 páginas por categoría** (350 requests, ~30 min,
+~90 MB de raw por día). Las páginas profundas son cola larga con pocas reseñas, pero amplían la
+muestra para el análisis de catálogo (Fase 1). El bucle corta antes si `pagination.count`
+indica menos páginas o si una página llega vacía.
 Se confirmó que algunos productos comparten el conteo de reseñas entre vendedores
 (ej. Galaxy A16: 512 reseñas en 3 vendedores). Detalle en `reports/validacion_piloto_2026-10-21.md`.
 
@@ -45,7 +49,7 @@ Cada corrida escribe `logs/piloto_YYYY-MM-DD.log`, guarda el HTML crudo en
 ## Ejecución diaria (Linux)
 
 ```bash
-scripts/instalar_timer.sh          # systemd --user timer, 08:30 ± 10 min, Persistent=true
+scripts/instalar_timer.sh          # systemd --user timer, 08:30 ± 10 min, Persistent=true (~30 min por corrida)
 systemctl --user list-timers       # ver próxima ejecución
 journalctl --user -u falabella-piloto.service -n 50   # ver salida
 ```
@@ -58,8 +62,8 @@ Alternativa con cron en `scripts/crontab_ejemplo.txt`.
   No hay API pública de categorías (el BFF es interno).
 - **Ética**: `robots.txt` permite categorías. 3–5 s aleatorios entre requests, 35 requests/día,
   abortar ante 403/429, sin datos personales (solo conteo y promedio de reseñas).
-- **Raw primero**: se guarda el HTML en gzip (~250 KB/página). Si cambia el parser se reprocesa
-  con `--solo-parsear` sin volver a descargar.
+- **Raw primero**: se guarda el HTML en gzip (~250 KB/página, ~90 MB/día con 50 páginas). Si cambia
+  el parser se reprocesa con `--solo-parsear` sin volver a descargar. Revisar espacio cada ~2 meses (~5 GB).
 - **Esquema**: `productos` (estable) + `capturas` con PK `(fecha, categoria, product_id, sku_id)`.
   La fecha en la clave permite comparar fotos; `INSERT OR REPLACE` hace la carga idempotente.
   Los patrocinados se repiten en varias páginas: la clave colapsa esos duplicados (queda la

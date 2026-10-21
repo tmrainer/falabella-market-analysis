@@ -21,7 +21,8 @@ CATEGORIAS = {
     "zapatillas_deportivas_mujer": ("cat16200461", "Zapatillas-deportivas-mujer"),
 }
 
-PAGINAS_POR_CATEGORIA = 5
+PAGINAS_POR_CATEGORIA = 50
+PRODUCTOS_POR_PAGINA = 48
 
 PAUSA_MIN_S = 3.0
 PAUSA_MAX_S = 5.0

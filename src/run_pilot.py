@@ -5,6 +5,7 @@
 """
 import argparse
 import logging
+import math
 import sys
 from datetime import date, datetime
 
@@ -27,24 +28,40 @@ def configurar_logging(fecha: date) -> None:
     )
 
 
-def procesar_categoria(con, sesion, categoria: str, fecha: date, paginas: int, solo_parsear: bool) -> tuple[int, int]:
-    """Devuelve (paginas procesadas, filas cargadas)."""
-    if solo_parsear:
-        rutas = [fetch.ruta_raw(fecha, categoria, p) for p in range(1, paginas + 1)]
-        rutas = [r for r in rutas if r.exists()]
-    else:
-        rutas = fetch.descargar_categoria(sesion, categoria, fecha, paginas)
+def paginas_disponibles(paginacion: dict) -> int | None:
+    count = paginacion.get("count")
+    if not count:
+        return None
+    por_pagina = paginacion.get("perPage") or config.PRODUCTOS_POR_PAGINA
+    return math.ceil(int(count) / int(por_pagina))
 
-    total_filas = 0
-    for pagina, ruta in enumerate(rutas, start=1):
+
+def procesar_categoria(con, sesion, categoria: str, fecha: date, paginas: int, solo_parsear: bool) -> tuple[int, int]:
+    """Devuelve (paginas procesadas, filas cargadas). Corta si la categoria se acaba antes del tope."""
+    paginas_ok = total_filas = 0
+    for pagina in range(1, paginas + 1):
+        if solo_parsear:
+            ruta = fetch.ruta_raw(fecha, categoria, pagina)
+            if not ruta.exists():
+                break
+        else:
+            ruta, _ = fetch.descargar_pagina(sesion, categoria, fecha, pagina)
+
         filas, paginacion = parse.parsear_pagina(fetch.leer_raw(ruta), fecha, categoria, pagina)
-        n = db.cargar_filas(con, filas)
-        total_filas += n
+        if not filas:
+            log.warning("%s p%d vacia; se corta la categoria", categoria, pagina)
+            break
+        total_filas += db.cargar_filas(con, filas)
+        paginas_ok += 1
+        disponibles = paginas_disponibles(paginacion)
         log.info(
-            "%s p%d: %d filas (catalogo total=%s, patrocinados=%d)",
-            categoria, pagina, n, paginacion.get("count"), sum(f["es_patrocinado"] for f in filas),
+            "%s p%d/%s: %d filas (catalogo=%s, patrocinados=%d)",
+            categoria, pagina, disponibles, len(filas), paginacion.get("count"),
+            sum(f["es_patrocinado"] for f in filas),
         )
-    return len(rutas), total_filas
+        if disponibles is not None and pagina >= disponibles:
+            break
+    return paginas_ok, total_filas
 
 
 def main(argv=None) -> int:
